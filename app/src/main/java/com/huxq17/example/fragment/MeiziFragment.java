@@ -1,9 +1,12 @@
 package com.huxq17.example.fragment;
 
+
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +83,15 @@ public class MeiziFragment extends UltraPagerFragment<ContentBean, MeiziPresente
         //Pass false if you want to disable swipe feature,or do nothing.
         swipeCardsView.enableSwipe(true);
         getData();
+
+
+//        floatingActionButton.setOnClickListener(new View.OnClickListener(){
+//
+//            @Override
+//            public void onClick(View view) {
+//                getDownImages();
+//            }
+////        });
         //设置滑动监听
         swipeCardsView.setCardsSlideListener(new SwipeCardsView.CardsSlideListener() {
             @Override
@@ -105,12 +117,19 @@ public class MeiziFragment extends UltraPagerFragment<ContentBean, MeiziPresente
             @Override
             public void onItemClick(View cardImageView, int index) {
                 toast("点击了 position=" + index);
+//                getDownImages();
             }
         });
         return container;
     }
 
+//    public void getDownImages(){
+//        getDownImage("http://i.meizitu.net/2016/10/12b01.jpg",activity);
+//    }
+
+
     public void getData() {
+        Log.i("data",Constants.CoverUrl + page);
         getData(Constants.CoverUrl + page, activity, this);
     }
 

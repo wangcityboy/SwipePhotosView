@@ -112,6 +112,11 @@ public abstract class UltraPagerFragment<T extends BaseBean, P extends BasePrese
         getPresenter().getData(url, context, page, tag);
     }
 
+
+//    public void getDownImage(String url,final Context context){
+//        getPresenter().doDownLoadImg(url,context);
+//    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

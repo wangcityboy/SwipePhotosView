@@ -1,23 +1,19 @@
-# Study_SwipePhotosView
-
+# SwipeCardsView
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-SwipeCardsView-green.svg?style=true)](https://android-arsenal.com/details/1/4247)
 ### 来由
 之所以做这个效果是因为项目中有这个效果需要实现。
 
- - 一开始我有在github上找到不少类似的库，但是发现放在项目中会发现要么有锯齿，要么就是卡顿，总之就是效果不好，其实绝大多数的库都和[Swipecards](https://github.com/Diolor/Swipecards)差不多，
-   做法是重写了adapterview，然后设置监听，在监听里做移动和缩放。移动用的是设置view的x和y坐标，这样做法的弊端是会频繁触发view树重绘，效率不高。
- - 后来发现这个库[android-card-slide-panel](https://github.com/xmuSistone/android-card-slide-panel)，它的做法是重写了viewgroup，里面view的数目是固定的，卡片的滑动是通过viewDragHelper来做的，
-   没有锯齿同时也不卡顿了，但是viewDragHelper有问题：<br>
+ - 一开始我有在github上找到不少类似的库，但是发现放在项目中会发现要么有锯齿，要么就是卡顿，总之就是效果不好，其实绝大多数的库都和[Swipecards](https://github.com/Diolor/Swipecards)差不多，做法是重写了adapterview，然后设置监听，在监听里做移动和缩放。移动用的是设置view的x和y坐标，这样做法的弊端是会频繁触发view树重绘，效率不高。
+ - 后来发现这个库[android-card-slide-panel](https://github.com/xmuSistone/android-card-slide-panel)，它的做法是重写了viewgroup，里面view的数目是固定的，卡片的滑动是通过viewDragHelper来做的，没有锯齿同时也不卡顿了，但是viewDragHelper有问题：<br>
  1、在多个手指同时滑动的时候会有概率出现pointIndex out of range异常，这个问题倒没什么，我通过修改viewDragHelper的源码已经解决了这个问题；<br>
  2、当用picasso或者glide加载图片以后，在手指拖动卡片的过程中有时会莫名的收到MotionEvent的UP事件，导致卡片回到了初始位置，这个问题折腾了我半天，后来的解决办法是弃用了viewDragHelper，直接使用Scroller。<br>
  3、还有一点要吐槽下，这个库的使用太麻烦了，耦合太重，集成到项目里比较费事。<br>
-
 ### 效果图
 <td>
 	 <img src="gif/pic3.gif" width="290" height="485" />
 	 <img src="gif/pic1.gif" width="290" height="485" />
 	 <img src="gif/pic2.gif" width="290" height="485" />
 </td>
-
 ###特点
 
  1. 如丝般顺滑，这是公司产品体验过后的评价；
@@ -25,8 +21,8 @@
  3. 使用方便，直接setadapter就可以使用了，数据更新调用swipeCardsView.notifyDatasetChanged(index);就行了，下面有使用说明。
 
 ###下载
-这段代码主要是我用来学习用的,同时在作者的基础之上,作了稍微一点修改,可以自动下载图片到手机,所以,你懂的。
 
+[点击下载apk,体验效果](https://raw.githubusercontent.com/huxq17/SwipeCardsView/master/apk/app_v1.3.1.apk)
 
 ###Gradle
 
@@ -79,7 +75,6 @@ dependencies {
         <attr name="scaleOffsetStep" format="float" />
     </declare-styleable>
 ```
-
 ####adapter：
 1、抽象类
 ```java
@@ -232,9 +227,6 @@ public class MeiziAdapter extends BaseCardAdapter {
 ```
 
 ### 更新日志：<br/>
-    2016-11-1:
-    1.在原作者的基础之上加了自动下载网络图片并保存到手机的功能
-    
     2016-9-28：
     1.Fix issue #13,and update to 1.3.3 version.
 
@@ -252,4 +244,19 @@ public class MeiziAdapter extends BaseCardAdapter {
     所用的数据是从别的网站上爬下来的，所以网站数据结构变化会导致demo崩掉。因为这只是个demo我就没有做特殊的处理，
     崩掉以后如果发现了我会及时改过来，如果app崩掉或者没有数据的话，建议直接看使用说明，不一定要把demo跑起来。
 
+## License
+
+    Copyright (C) 2016 huxq17
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 

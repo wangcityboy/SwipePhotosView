@@ -1,16 +1,20 @@
 package com.huxq17.example.base;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.andbase.tractor.listener.impl.LoadListenerImpl;
 import com.andbase.tractor.task.Task;
 import com.andbase.tractor.task.TaskPool;
-import com.andbase.tractor.utils.LogUtils;
+
 import com.huxq17.example.bean.ContentBean;
 import com.huxq17.example.bean.MeiziBean;
+import com.huxq17.example.constants.Constants;
 import com.huxq17.example.http.HttpSender;
 import com.huxq17.example.http.response.HttpResponse;
+import com.huxq17.example.utils.LogUtil;
 import com.huxq17.example.utils.Utils;
+import com.huxq17.example.utils.YnBitmapUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+
 
 
 /**
@@ -88,10 +94,13 @@ public abstract class BasePresenter<T extends BaseBean, F extends UltraPagerFrag
         TaskPool.getInstance().execute(new Task(tag, listener) {
             @Override
             public void onRun() {
+                Log.i("urllll",url);
                 HttpResponse httpResponse = HttpSender.instance().getSync(url, null, null, tag);
                 String html = httpResponse.string();
                 if (html != null) {
-                    List<ContentBean> beans = parserMainBean(this, html, "", tag);
+                    List<ContentBean> beans = parserMainBean(this, html, "", tag,context);
+
+
                     if (beans != null && beans.size() > 0) {
                         notifySuccess(beans);
                     } else {
@@ -108,7 +117,7 @@ public abstract class BasePresenter<T extends BaseBean, F extends UltraPagerFrag
         });
     }
 
-    private List<ContentBean> parserMainBean(Task task, String html, String type, Object tag) {
+    private List<ContentBean> parserMainBean(Task task, String html, String type, Object tag,final Context context) {
         List<ContentBean> contentBeanList = new ArrayList<>();
 //        List<MeiziBean> list = new ArrayList<>();
         Document doc = Jsoup.parse(html);
@@ -124,14 +133,15 @@ public abstract class BasePresenter<T extends BaseBean, F extends UltraPagerFrag
 
             bean.setTitle(imgelement.attr("alt").toString());
             bean.setType(type);
-            bean.setHeight(354);//element.attr("height")
-            bean.setWidth(236);
+            bean.setHeight(484);//element.attr("height")
+            bean.setWidth(336);
             bean.setImageurl(imgelement.attr("data-original"));
             bean.setUrl(aelement.attr("href"));
             int groupId = Utils.url2groupid(bean.getUrl());
             bean.setGroupid(groupId);//首页的这个是从大到小排序的 可以当做排序依据
 //            list.add(bean);
-            List<ContentBean> block = getContent(task, bean.getUrl(), groupId, tag);
+            Log.i("bean",bean.getUrl());
+            List<ContentBean> block = getContent(task, bean.getUrl(), groupId, tag,context);
             if (firstList.size() > 0) {
                 block.removeAll(firstList);
             }
@@ -144,8 +154,9 @@ public abstract class BasePresenter<T extends BaseBean, F extends UltraPagerFrag
         return contentBeanList;
     }
 
-    private List<ContentBean> getContent(Task task, String url, int groupid, Object tag) {
-        LogUtils.i("getcontent url=" + url);
+    private List<ContentBean> getContent(Task task, String url, int groupid, Object tag,final Context context) {
+//        LogUtils.i("getcontent url=" + url);
+        Log.i("data",url);
         List<ContentBean> list = new ArrayList<>();
         HttpResponse httpResponse = HttpSender.instance().getSync(url, null, null, tag);
         String html = httpResponse.string();
@@ -154,6 +165,8 @@ public abstract class BasePresenter<T extends BaseBean, F extends UltraPagerFrag
             for (int i = 1; i < mcount + 1; i++) {
                 ContentBean content = null;
                 content = fetchContent(url + "/" + i, tag);
+                Log.i("contentUrl",content.getUrl());
+                doDownLoadImg(context,content.getUrl(),content.getTitle());
                 if (content != null) {
                     content.setOrder(groupid + i);
                     content.setGroupid(groupid);
@@ -183,6 +196,30 @@ public abstract class BasePresenter<T extends BaseBean, F extends UltraPagerFrag
         return Integer.parseInt(stringBuffer.toString());
     }
 
+
+    /**
+     * 下载用户保存的图片
+     */
+    public void doDownLoadImg(final Context context,String url,String tag) {
+        String fileName = tag+System.currentTimeMillis() + ".jpg";
+        new Thread(() -> {
+            try {
+                //网络下载图片
+                byte[] b = YnBitmapUtils.getImageFromNet(url);
+                if (null != b && 0 != b.length) {
+                    YnBitmapUtils.savePic(context, Constants.FOLDERNAME, fileName, android.graphics.BitmapFactory.decodeByteArray(b, 0, b.length));
+                    System.out.println("恭喜你,图片下载成功");
+                } else {
+                    System.out.println("图片下载失败,请重试");
+                }
+            } catch (Exception e) {
+                System.out.println("图片下载异常,请检查");
+                LogUtil.i("info", e.getMessage(), e);
+            }
+        }).start();
+    }
+
+
     private ContentBean fetchContent(String url, Object tag) {
         String html;
         HttpResponse httpResponse = HttpSender.instance().getSync(url, null, null, tag);
@@ -209,6 +246,7 @@ public abstract class BasePresenter<T extends BaseBean, F extends UltraPagerFrag
         ContentBean content = new ContentBean();
         Document doc = Jsoup.parse(html);
         Elements links = doc.select("img[src~=(?i)\\.(png|jpe?g)]");
+        Log.i("links",links.get(0).getElementsByTag("img").first().toString());
         if (links.size() == 0) {
             return null;
         }
